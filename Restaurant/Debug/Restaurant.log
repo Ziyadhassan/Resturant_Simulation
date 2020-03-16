@@ -1,0 +1,5 @@
+﻿  Restaurant.cpp
+c:\users\hasan\desktop\university\programming\projects\projects files\cmp102_porj_code_spring2020\restaurant\rest\restaurant.cpp(95): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\hasan\desktop\university\programming\projects\projects files\cmp102_porj_code_spring2020\restaurant\rest\restaurant.cpp(149): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdlib.h(1323): note: see declaration of 'itoa'
+  Restaurant.vcxproj -> C:\Users\Hasan\Desktop\University\Programming\Projects\Projects Files\CMP102_Porj_code_Spring2020\Debug\Restaurant.exe
