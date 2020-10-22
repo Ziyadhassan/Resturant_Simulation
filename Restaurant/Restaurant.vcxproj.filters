@@ -114,6 +114,12 @@
     <ClInclude Include="Priority_Queue.h">
       <Filter>Generic_DS</Filter>
     </ClInclude>
+    <ClInclude Include="CancellationEvent.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Promotion.h">
+      <Filter>Events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Demo_Main.cpp" />
@@ -239,6 +245,12 @@
     </ClCompile>
     <ClCompile Include="Rest\Cook.cpp">
       <Filter>Restaurant</Filter>
+    </ClCompile>
+    <ClCompile Include="CancellationEvent.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Promotion.cpp">
+      <Filter>Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

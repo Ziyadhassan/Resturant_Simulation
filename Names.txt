@@ -1,0 +1,4 @@
+Name: Ahmed Mohammed AbdelHamid       Sec:1   BN:9
+Name: Ahmed Mahmoud Ghareeb  	      Sec:1   BN:10
+Name: Ziyad Hassan AbdelMaqsoud       Sec:1   BN:36
+Name: Omer Muahmmed Yacine            Sec:2   BN:4

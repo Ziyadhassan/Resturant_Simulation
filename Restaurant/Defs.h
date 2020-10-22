@@ -7,9 +7,10 @@
 
 enum ORD_TYPE	//types of orders
 {
-	TYPE_NRM,	//normal order
-	TYPE_VGAN,	//vegan
+	TYPE_NRM,	//Normal order
+	TYPE_VGAN,	//Vegan
 	TYPE_VIP,	//VIP
+	TYPE_URG,   //Urgent
 	TYPE_CNT	//Number of types
 
 };
@@ -28,7 +29,6 @@ enum PROG_MODE	//mode of the program interface
 	MODE_INTR,	//interactive mode
 	MODE_STEP,	//Step-by-step mode
 	MODE_SLNT,	//Silent mode
-	MODE_DEMO,	//Demo mode (for introductory phase only, should be removed in phases 1&2)
 	MODE_CNT	//number of possible modes
 };
 

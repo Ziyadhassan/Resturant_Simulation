@@ -1,12 +1,34 @@
 #include "Order.h"
 
-Order::Order(int id, ORD_TYPE r_Type, double money, int size)
+Order::Order()
 {
-	ID = (id>0&&id<1000)?id:0;	//1<ID<999
+}
+
+Order::Order(int id, ORD_TYPE r_Type, double money, int size, int arrTime, int PromotionLimit, int VIP_PromotionLimit)
+{
+	ID = (id > 0 && id < 1000) ? id : 0;	//1<ID<999
 	type = r_Type;
-	status = WAIT;
+	status = ORD_STATUS_CNT;
 	totalMoney = money;
 	Size = size;
+	ArrTime = arrTime;
+	if (type == TYPE_NRM)
+	{
+		TimerAutoPromotion = ArrTime + PromotionLimit;
+		Vip_AutoPromotion = -1;
+	}
+	else if (type == TYPE_VIP)
+	{
+		Vip_AutoPromotion = ArrTime + VIP_PromotionLimit;
+		TimerAutoPromotion = -1;
+	}
+	else
+	{
+		TimerAutoPromotion = -1;
+		Vip_AutoPromotion = -1;
+	}
+		
+	AutoPromoted = false;
 	if (type == TYPE_VIP)
 	{
 		Set_Priority_Value();
@@ -33,24 +55,48 @@ ORD_TYPE Order::GetType() const
 }
 
 
-void Order::SetDistance(int d)
+int Order::Get_Timer_AutoPrmotion()
 {
-	Distance = d>0?d:0;
+	return TimerAutoPromotion;
 }
 
-int Order::GetDistance() const
+int Order::Get_TImer_VipPromotion()
 {
-	return Distance;
+	return Vip_AutoPromotion;
 }
 
+bool Order::Get_AutoPromoted()
+{
+	return AutoPromoted;
+}
+
+void Order::setAutoPromotion(bool promotion)
+{
+	AutoPromoted = promotion;
+}
+
+void Order::setVipPromotion(bool promotion)
+{
+	Vip_AutoPromotion = promotion;
+}
 
 void Order::setStatus(ORD_STATUS s)
 {
 	status = s;
 }
 
+void Order::Set_CookMaker(Cook* cook)
+{
+	CookMaker = cook;
+}
+
 ORD_STATUS Order::getStatus() const
 {
 	return status;
+}
+
+int Order::getSize()
+{
+	return Size;
 }
 
