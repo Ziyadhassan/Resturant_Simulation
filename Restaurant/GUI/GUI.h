@@ -34,7 +34,7 @@ class GUI
 	};
 
 private:
-	window *pWind;
+	window* pWind;
 	color DrawingColors[TYPE_CNT];
 
 
@@ -112,15 +112,16 @@ public:
 
 	// Input Functions  ---------------------------
 	void waitForClick() const;	// waits a user click from the user
-	string GetString() const; // reads a string (keyboard input) from the user
+	string GetString() const;   // reads a string (keyboard input) from the user
 
 	// Output Functions  ---------------------------
-	void PrintMessage(string msg) const; // prints a message in the status bar
-	void PrintMessageN(string, string, string, string) const; // prints a message in the status bar
-	void PrintMessageG(string msg) const; // prints a message in the status bar
-	void PrintMessageV(string msg) const; // prints a message in the status bar
-	void PrintMessageW(string msg) const; // prints a message in the status bar
-	void PrintMessageNoRemove(string msg) const; // prints a message in the status bar
+	void PrintMessage(string msg) const;		// prints a message in the status bar
+	void PrintStatusBar(string& Timestep, string& Normal, string& Vegan, string& VIP, string& Urgent); // Print All of the Staus Bar
+	void PrintMessageN(string& Normal) const;	// Print Assigned Noraml Orders
+	void PrintMessageG(string& Vegan) const;	// Print Assigned Vegan Orders
+	void PrintMessageV(string& VIP) const;		// Print Assigned VIP Orders
+	void PrintMessageInjury(string& Injuered) const; //Print status of Injured Cook
+	void PrintMessageNoRemove(string& mode, string& served) const; // Prints the message at the Bottom of the Status Bar
 
 
 	void UpdateInterface();

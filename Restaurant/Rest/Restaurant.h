@@ -52,12 +52,12 @@ public:
 	void Silent();
 
 
-	// The Main
+	// The Main Functions
 	void Assgin_Cook_Order(int timestep, string&, string&, string&);
-	bool Injuered(int timestep, float propabilty);
+	bool Injuered(int timestep, float Probability);
 	void Free_Cooks(int timestep);
 	void Auto_Promotion_Event(int timestep);
-	void Draw_Status_Bar();
+	void Draw_Status_Bar(string& timestep);
 	void Draw_Assignation(string&, string&, string&);
 	void OutputFile(string filename , int Injeredcooks);
 	string Read_Input();

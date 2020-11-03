@@ -49,6 +49,8 @@ public:
 		Node<T>* ptr = new Node<T>(*Item, Head);
 		Head = ptr;
 		Count++;
+		if (Count == 1)
+			Rear = Head;
 	}
 	void Add_To_List(Node<T>* node)  // Add at the Front 
 	{
@@ -57,6 +59,8 @@ public:
 			node->setNext(Head);
 			Head = node;
 			Count++;
+			if (Count == 1)
+				Rear = Head;
 		}
 
 	}

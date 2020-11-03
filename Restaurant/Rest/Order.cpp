@@ -15,12 +15,12 @@ Order::Order(int id, ORD_TYPE r_Type, double money, int size, int arrTime, int P
 	if (type == TYPE_NRM)
 	{
 		TimerAutoPromotion = ArrTime + PromotionLimit;
-		Vip_AutoPromotion = -1;
+		TimerVipPromotion = -1;
 	}
 	else if (type == TYPE_VIP)
 	{
-		Vip_AutoPromotion = ArrTime + VIP_PromotionLimit;
 		TimerAutoPromotion = -1;
+		TimerVipPromotion = ArrTime + VIP_PromotionLimit;
 	}
 	else
 	{
@@ -28,7 +28,9 @@ Order::Order(int id, ORD_TYPE r_Type, double money, int size, int arrTime, int P
 		Vip_AutoPromotion = -1;
 	}
 		
+	Vip_AutoPromotion = false;
 	AutoPromoted = false;
+
 	if (type == TYPE_VIP)
 	{
 		Set_Priority_Value();
@@ -62,7 +64,7 @@ int Order::Get_Timer_AutoPrmotion()
 
 int Order::Get_TImer_VipPromotion()
 {
-	return Vip_AutoPromotion;
+	return TimerVipPromotion;
 }
 
 bool Order::Get_AutoPromoted()

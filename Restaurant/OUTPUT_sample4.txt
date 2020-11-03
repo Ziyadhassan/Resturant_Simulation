@@ -1,0 +1,15 @@
+FT	ID	At	Wt	ST
+12	1	5	0	7
+15	2	7	0	8
+20	4	10	0	10
+22	7	16	0	6
+24	10	17	1	6
+25	9	16	5	4
+25	8	16	6	3
+29	3	9	0	20
+40	11	17	3	20
+Orders: 9 [ Norm:4, Veg:2, VIP:3 ]
+Cooks:5 [ Norm:2, Veg:1, VIP:2, injured: 4 ]
+Avg Wait = 1.66667 , Avg Serv = 9.33333
+Urgent orders: 0 , Auto-promoted: 25%
+Total-Earnings : 1129 L.E.

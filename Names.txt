@@ -1,4 +1,4 @@
-Name: Ahmed Mohammed AbdelHamid       Sec:1   BN:9
-Name: Ahmed Mahmoud Ghareeb  	      Sec:1   BN:10
-Name: Ziyad Hassan AbdelMaqsoud       Sec:1   BN:36
-Name: Omer Muahmmed Yacine            Sec:2   BN:4
+Name: Ahmed Mohammed AbdelHamid       Sec:1   BN:9    Email: ahmedmohamedcr60@gmail.com
+Name: Ahmed Mahmoud Ghareeb  	      Sec:1   BN:10   Email: moud123321@gmail.com
+Name: Ziyad Hassan AbdelMaqsoud       Sec:1   BN:36   Email: Ziyadhassan500@gmail.com
+Name: Omer Muahmmed Yacine            Sec:2   BN:5    Email: omar.groza@gmail.com

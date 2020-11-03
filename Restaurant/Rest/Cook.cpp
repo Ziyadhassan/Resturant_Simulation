@@ -16,6 +16,7 @@ Cook::Cook(int id, ORD_TYPE tp, int sp,int breakduration, int numtobreak)
 	order = nullptr;
 	Timer = 0;
 	Timer_Break = 0;
+	Timer_Reset = 0;
 	Break_Duration = breakduration;
 	Num_Of_Ord_Break = numtobreak;
 	Num_To_Break = 0;

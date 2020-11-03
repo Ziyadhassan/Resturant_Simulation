@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <time.h>
-#include<fstream>
+#include <fstream>
 #include <iostream>
 using namespace std;
 
@@ -19,6 +19,8 @@ void Restaurant::RunSimulation()
 {
 	pGUI = new GUI;
 	mode = pGUI->getGUIMode();
+
+	srand(time(0));
 
 	switch (mode)	//Add a function for each mode in next phases
 	{
@@ -73,7 +75,7 @@ void Restaurant::Interactive_Mode()
 {
 	string Filename = Read_Input();
 	int CurrentTimeStep = 1;
-	string Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined;
+	string Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined, Waiting_Urgent_Orders;
 	int InjerentCooks = 0;
 
 	//as long as events queue is not empty yet
@@ -82,7 +84,8 @@ void Restaurant::Interactive_Mode()
 		//print current timestep
 		string timestep = "TimeStep : ";
 		timestep += to_string(CurrentTimeStep);
-		pGUI->PrintMessage(timestep);
+		pGUI->PrintMessage("");			// Just to remove the previous message
+
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
 		Free_Cooks(CurrentTimeStep);   // Free all the cooks at the Current 
@@ -93,10 +96,9 @@ void Restaurant::Interactive_Mode()
 
 		InjerentCooks += Injuered(CurrentTimeStep, rand() / float(RAND_MAX));
 
-		Draw_Status_Bar();
-
 		Auto_Promotion_Event(CurrentTimeStep);
 
+		Draw_Status_Bar(timestep);
 		FillDrawingList();
 		pGUI->UpdateInterface();
 		pGUI->waitForClick();
@@ -112,7 +114,7 @@ void Restaurant::StepByStep()
 {
 	string Filename = Read_Input();
 	int CurrentTimeStep = 1;
-	string Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined;
+	string Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined, Waiting_Urgent_Orders;
 	int InjerentCooks = 0;
 
 	//as long as events queue is not empty yet
@@ -121,7 +123,8 @@ void Restaurant::StepByStep()
 		//print current timestep
 		string timestep = "TimeStep : ";
 		timestep += to_string(CurrentTimeStep);
-		pGUI->PrintMessage(timestep);
+		pGUI->PrintMessage("");			// Just to remove the previous message
+
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
 		Free_Cooks(CurrentTimeStep);   // Free all the cooks at the Current 
@@ -132,7 +135,7 @@ void Restaurant::StepByStep()
 
 		InjerentCooks += Injuered(CurrentTimeStep, rand() / float(RAND_MAX));
 
-		Draw_Status_Bar();
+		Draw_Status_Bar(timestep);
 
 		Auto_Promotion_Event(CurrentTimeStep);
 
@@ -163,9 +166,9 @@ void Restaurant::Silent()
 
 		Free_Cooks(CurrentTimeStep);   // Free all the cooks at the Current 
 
-		//Draw_Status_Bar(Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined);
-
 		Assgin_Cook_Order(CurrentTimeStep, Normal_Cooks_Assgined, Vegan_Cooks_Assgined, VIP_Cooks_Assgined);
+
+		InjerentCooks += Injuered(CurrentTimeStep, rand() / float(RAND_MAX));
 
 		Auto_Promotion_Event(CurrentTimeStep);
 
@@ -328,17 +331,56 @@ void Restaurant::Assgin_Cook_Order(int timestep, string& NC, string& GC, string&
 	}
 }
 
-bool Restaurant::Injuered(int timestep, float propabilty)
+bool Restaurant::Injuered(int timestep, float Probability)
 {
-	if (propabilty <= InjuryPropabilty)
+	string I = "";
+	if (Probability <= InjuryPropabilty)
 	{
 		if (Service_Order.GetHead())
 		{
 			Node<Order>* node = Service_Order.GetHead();
-			node->getItem().Get_Cook()->setInjuered(true);
-			node->getItem().Get_Cook()->setTimer(timestep + (node->getItem().Get_Cook()->GetTimer() - timestep) * 2);
-			node->getItem().Set_Service_Time(node->getItem().Get_Cook()->GetTimer() - node->getItem().Get_Arrival_Time() - node->getItem().Get_Waiting_Time());
-			node->getItem().Get_Cook()->setTimerReset(node->getItem().Get_Cook()->GetTimer() + ResetDuration);
+			Cook* cook = NULL;
+
+			while (node) // to seacrh for the first not injured cook
+			{
+				if (!node->getItem().Get_Cook()->IsInjuered())
+				{
+					cook = node->getItem().Get_Cook();
+					break;
+				}
+				node = node->getNext();
+			}
+
+			if (!cook) // if we found that all cooks are injured , will return to the first busy injuerd cook
+			{
+				node = Service_Order.GetHead();
+				cook = node->getItem().Get_Cook();
+			}
+
+			cook->setInjuered(true);
+			cook->setTimer(timestep + (cook->GetTimer() - timestep) * 2);
+			cook->setTimerReset(cook->GetTimer() + ResetDuration);
+			node->getItem().Set_Service_Time(cook->GetTimer() - node->getItem().Get_Arrival_Time() - node->getItem().Get_Waiting_Time());
+
+			if (mode != MODE_SLNT)
+			{
+				switch (cook->GetType())
+				{
+				case TYPE_NRM:
+					I += "Cook N" + to_string(cook->GetID()) + " got Injured !!";
+					break;
+				case TYPE_VGAN:
+					I += "Cook G" + to_string(cook->GetID()) + " got Injured !!";
+					break;
+				case TYPE_VIP:
+					I += "Cook V" + to_string(cook->GetID()) + " got Injured !!";
+					break;
+				default:
+					break;
+				}
+				pGUI->PrintMessageInjury(I);
+
+			}
 			return true;
 		}
 	}
@@ -775,14 +817,14 @@ bool Restaurant::Assgin_Urgent_Order(Node<Order>* Ord, int timestep, string& NCo
 
 			Ord->getItem().setStatus(SRV);             // Change the status of the order to "In-Servce"
 			Ord->getItem().Set_Service_Time(x);		   // Assgin the service time to the order
-			VCooks_Assgined += " V" + to_string(cook->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			VCooks_Assgined += " V" + to_string(cook->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 			return true;
 		}
-		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak != NULL)
+		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak == NULL)
 		{
 			cookBreak = cook;
 		}
-		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset != NULL)
+		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset == NULL)
 		{
 			cookReset = cook;
 		}
@@ -813,14 +855,14 @@ bool Restaurant::Assgin_Urgent_Order(Node<Order>* Ord, int timestep, string& NCo
 
 			Ord->getItem().setStatus(SRV);             // Change the status of the order to "In-Servce"
 			Ord->getItem().Set_Service_Time(x);		   // Assgin the service time to the order
-			NCooks_Assgined += " N" + to_string(cook->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			NCooks_Assgined += " N" + to_string(cook->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 			return true;
 		}
-		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak != NULL)
+		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak == NULL)
 		{
 			cookBreak = cook;
 		}
-		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset != NULL)
+		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset == NULL)
 		{
 			cookReset = cook;
 		}
@@ -853,14 +895,14 @@ bool Restaurant::Assgin_Urgent_Order(Node<Order>* Ord, int timestep, string& NCo
 
 			Ord->getItem().setStatus(SRV);             // Change the status of the order to "In-Servce"
 			Ord->getItem().Set_Service_Time(x);		   // Assgin the service time to the order
-			GCooks_Assgined += " G" + to_string(cook->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			GCooks_Assgined += " G" + to_string(cook->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 			return true;
 		}
-		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak != NULL)
+		else if (cook->getItem().InBREAK() && !cook->getItem().IsInjuered() && cookBreak == NULL)
 		{
 			cookBreak = cook;
 		}
-		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset != NULL)
+		else if (!cook->getItem().IsBUSY() && cook->getItem().IsInjuered() && cookReset == NULL)
 		{
 			cookReset = cook;
 		}
@@ -891,11 +933,11 @@ bool Restaurant::Assgin_Urgent_Order(Node<Order>* Ord, int timestep, string& NCo
 		Ord->getItem().Set_Service_Time(x);		   // Assgin the service time to the order
 
 		if (cookBreak->getItem().GetType() == TYPE_VIP)
-			VCooks_Assgined += " V" + to_string(cookBreak->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			VCooks_Assgined += " V" + to_string(cookBreak->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		else if (cookBreak->getItem().GetType() == TYPE_NRM)
-			NCooks_Assgined += " N" + to_string(cookBreak->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			NCooks_Assgined += " N" + to_string(cookBreak->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		else
-			GCooks_Assgined += " G" + to_string(cookBreak->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			GCooks_Assgined += " G" + to_string(cookBreak->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		return true;
 	}
 	else if (cookReset)
@@ -921,11 +963,11 @@ bool Restaurant::Assgin_Urgent_Order(Node<Order>* Ord, int timestep, string& NCo
 		Ord->getItem().Set_Service_Time(x);		   // Assgin the service time to the order
 
 		if (cookReset->getItem().GetType() == TYPE_VIP)
-			VCooks_Assgined += " V" + to_string(cookReset->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			VCooks_Assgined += " V" + to_string(cookReset->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		else if (cookReset->getItem().GetType() == TYPE_NRM)
-			NCooks_Assgined += " N" + to_string(cookReset->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			NCooks_Assgined += " N" + to_string(cookReset->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		else
-			GCooks_Assgined += " G" + to_string(cookReset->getItem().GetID()) + "(V" + to_string(Ord->getItem().GetID()) + ")  ";
+			GCooks_Assgined += " G" + to_string(cookReset->getItem().GetID()) + "(U" + to_string(Ord->getItem().GetID()) + ")  ";
 		return true;
 	}
 	return false;
@@ -977,7 +1019,7 @@ void Restaurant::OrderPromotion(int IDtoPromote, double ExtraMoney)
 		{
 			temp->push(ptr);
 			count++;
-			ptr = Waiting_orders.PoP();;
+			ptr = Waiting_orders.PoP();
 		}
 
 		Waiting_orders.SetHead(temp->Get_Head());
@@ -1027,7 +1069,7 @@ void Restaurant::OrderCancellation(int IDtoCancell)
 
 void Restaurant::Auto_Promotion_Event(int timestep)
 {
-	int count = 0;
+	bool count = false;
 	Node<Order>* ord = Waiting_orders.Get_Head();
 	while (ord)
 	{
@@ -1035,12 +1077,13 @@ void Restaurant::Auto_Promotion_Event(int timestep)
 		{
 			ord->getItem().Set_Type(TYPE_VIP);
 			ord->getItem().setAutoPromotion(true);
-			count++;
+			count = true;
 		}
 		if (ord->getItem().Get_TImer_VipPromotion() == timestep)
 		{
 			ord->getItem().Set_Type(TYPE_URG);
 			ord->getItem().setVipPromotion(true);
+			count = true;
 		}
 		ord = ord->getNext();
 	}
@@ -1061,33 +1104,36 @@ void Restaurant::Auto_Promotion_Event(int timestep)
 	return;
 }
 
-void Restaurant::Draw_Status_Bar()
+void Restaurant::Draw_Status_Bar(string& timestep)
 {
-	int Vegan_orders, Normal_orders, VIP_Orders, Normal_cooks, Vegan_cooks, VIP_cooks, Served_Now;
-	Vegan_orders = Normal_orders = VIP_Orders = Normal_cooks = Vegan_cooks = VIP_cooks = Served_Now = 0;
-	string n, g, v, w;
+	int Vegan_orders, Normal_orders, VIP_Orders, Urgent_Orders, Normal_cooks, Vegan_cooks, VIP_cooks, Served_Now;
+	Vegan_orders = Normal_orders = VIP_Orders = Urgent_Orders = Normal_cooks = Vegan_cooks = VIP_cooks = Served_Now = 0;
+	string Normal, Vegan, VIP, Urgent, Mode, Serived;
 	Node<Order>* ord;
 	Node<Cook>* cook;
-	//waiting of types vip & normal
+
+	// Waiting of types VIP & Normal & Urgent
 	ord = Waiting_orders.Get_Head();
 	while (ord)
 	{
 		if (ord->getItem().GetType() == TYPE_NRM)
 			Normal_orders++;
-		else
+		else if (ord->getItem().GetType() == TYPE_VIP)
 			VIP_Orders++;
+		else
+			Urgent_Orders++;
 		ord = ord->getNext();
 	}
-	//waiting of type vegan
+
+	// Waiting of type Vegan
 	ord = Waiting_orders_Vegan.GetHead();
 	while (ord)
 	{
 		Vegan_orders++;
 		ord = ord->getNext();
 	}
-	//served so far
-	Served_Now = order_done.GetCount();
-	//free normal
+
+	// Getting the Free Normal Cooks
 	cook = Normal_Cook.GetHead();
 	while (cook)
 	{
@@ -1095,7 +1141,8 @@ void Restaurant::Draw_Status_Bar()
 			Normal_cooks++;
 		cook = cook->getNext();
 	}
-	//free vegan
+
+	// Getting the Free Vegan Cooks
 	cook = Vegan_Cook.GetHead();
 	while (cook)
 	{
@@ -1103,7 +1150,8 @@ void Restaurant::Draw_Status_Bar()
 			Vegan_cooks++;
 		cook = cook->getNext();
 	}
-	//free vip
+
+	// Getting the Free VIP Cooks
 	cook = VIP_Cook.GetHead();
 	while (cook)
 	{
@@ -1111,35 +1159,39 @@ void Restaurant::Draw_Status_Bar()
 			VIP_cooks++;
 		cook = cook->getNext();
 	}
-	//filling basis info
-	n = "Waiting Normal Orders  : " + to_string(Normal_orders) + "        Free Normal Cooks  : " + to_string(Normal_cooks) + "       Orders Assigned Past TS :";
-	g = "Waiting  Vegan  Orders : " + to_string(Vegan_orders) + "        Free  Vegan   Cooks : " + to_string(Vegan_cooks) + "       Orders Assigned Past TS :";
-	v = "Waiting    VIP     Orders  : " + to_string(VIP_Orders) + "        Free    VIP     Cooks  : " + to_string(VIP_cooks) + "       Orders Assigned Past TS :";
+
+	// Filling basis info
+	Urgent = "Waiting  Urgent  Orders : " + to_string(Urgent_Orders);
+	Normal = "Waiting  Normal Orders : " + to_string(Normal_orders) + "        Free Normal Cooks  : " + to_string(Normal_cooks) + "       Orders Assigned Past TS :";
+	Vegan = "Waiting  Vegan   Orders : " + to_string(Vegan_orders) + "        Free  Vegan   Cooks : " + to_string(Vegan_cooks) + "      Orders Assigned Past TS :";
+	VIP = "Waiting     VIP    Orders  : " + to_string(VIP_Orders) + "        Free    VIP     Cooks  : " + to_string(VIP_cooks) + "      Orders Assigned Past TS :";
+
 	switch (mode)
 	{
 	case MODE_INTR:
-		w = "INTERACTIVE MODE                                                  ";
+		Mode = "INTERACTIVE MODE";
 		break;
 	case MODE_STEP:
-		w = "STEP-BY-STEP                                                             ";
+		Mode = "STEP-BY-STEP";
 		break;
 	case MODE_SLNT:
-		w = "SILENT MODE                                                       "; //I KNOW ITS REDUNDANT
+		Mode = "SILENT MODE";
 		break;
 	};
-	w += "                                     Orders Served Till Now : " + to_string(Served_Now);
-	//printing
-	pGUI->PrintMessageN(n, g, v, w);
-	pGUI->PrintMessageNoRemove("                                                                                                                                                                                                            WELCOME TO OUR RESTAURANT");
+
+	Served_Now = order_done.GetCount();		// Served so far
+	Serived += "Orders Served Till Now : " + to_string(Served_Now);
+	//Printing
+	pGUI->PrintStatusBar(timestep, Normal, Vegan, VIP, Urgent);
+	pGUI->PrintMessageNoRemove(Mode, Serived);
 
 }
 
 void Restaurant::Draw_Assignation(string& n, string& g, string& v)
 {
-	string normal = "                                                                                                                                                    " + n;
-	string vegan = "                                                                                                                                                    " + g;
-	string vip = "                                                                                                                                                    " + v;
-	pGUI->PrintMessageN(normal, vegan, vip, "");
+	pGUI->PrintMessageN(n);
+	pGUI->PrintMessageG(g);
+	pGUI->PrintMessageV(v);
 }
 
 void Restaurant::OutputFile(string filename, int Injuerdcooks)
@@ -1161,17 +1213,17 @@ void Restaurant::OutputFile(string filename, int Injuerdcooks)
 		Total_Waiting_Time += ord->getItem().Get_Waiting_Time();
 
 
-		if (ord->getItem().Get_AutoPromoted() == 1)
+		if (ord->getItem().Get_AutoPromoted() == true)
 			Total_Auto_Promotion++;
 
 		if (ord->getItem().GetType() == TYPE_URG)
 			Total_Urgent_Orders++;
-
 		if (ord->getItem().GetType() == TYPE_NRM)
 			Total_Normal_Orders++;
-
 		else if (ord->getItem().GetType() == TYPE_VGAN)
 			Total_Vegan_Orders++;
+		else if (ord->getItem().GetType() == TYPE_VIP && ord->getItem().Get_AutoPromoted() == true)
+			Total_Normal_Orders++;
 		else
 			Total_VIP_Orders++;
 
@@ -1194,7 +1246,7 @@ void Restaurant::OutputFile(string filename, int Injuerdcooks)
 	out << "Orders: " << Total_Orders << " [ Norm:" << Total_Normal_Orders << ", Veg:" << Total_Vegan_Orders << ", VIP:" << Total_VIP_Orders << " ]" << endl;
 	out << "Cooks:" << Total_Cooks << " [ Norm:" << Total_Normal_Cooks << ", Veg:" << Total_Vegan_Cooks << ", VIP:" << Total_VIP_Cooks << ", injured: " << Injuerdcooks << " ]" << endl;
 	out << "Avg Wait = " << Avg_Waiting_Time << " , Avg Serv = " << Avg_Service_Time << endl;
-	out << "Urgent orders: " << Total_Urgent_Orders << " , Auto-promoted: " << Total_Auto_Promotion / float(Total_Normal_Orders) * 100 << "%" << endl;
+	out << "Urgent orders: " << Total_Urgent_Orders << " , Auto-promoted: " << (Total_Normal_Orders ? Total_Auto_Promotion / float(Total_Normal_Orders) : 0) * 100 << "%" << endl;
 	out << "Total-Earnings : " << Total_Earning << " L.E.\n";
 	out.close();
 }

@@ -12,6 +12,7 @@ GUI::GUI()
 	DrawingColors[TYPE_NRM] = RED;	//normal-order color
 	DrawingColors[TYPE_VGAN] = LIMEGREEN;		//vegan-order color
 	DrawingColors[TYPE_VIP] = GOLD;		//VIP-order color						
+	DrawingColors[TYPE_URG] = CADETBLUE;		//URG-order color
 
 	ClearStatusBar();
 	ClearDrawingArea();
@@ -65,67 +66,73 @@ void GUI::PrintMessage(string msg) const	//Prints a message on status bar
 	pWind->SetPen(BLACK);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
-	//GUI::PrintMessageN(msg);	GUI::PrintMessageG(msg);	GUI::PrintMessageV(msg);	GUI::PrintMessageW(msg);
 }
-////print msg 1 functions
-void GUI::PrintMessageN(string msg, string g, string v, string w) const	//Prints a message on status bar
+void GUI::PrintStatusBar(string& Timestep, string& Normal, string& Vegan, string& VIP, string& Urgent)
 {
-	//ClearStatusBar();	//First clear the status bar
-	//we dont clear status bar so the upper msg doesn't disappear
+	pWind->SetFont(18, BOLD, BY_NAME, "Arial"); // Constant for all
 
-	pWind->SetPen(DrawingColors[0]);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.325), msg); // You may need to change these coordinates later 
+	pWind->SetPen(BLACK); // To Draw the Timestep
+	pWind->DrawString(WindWidth / 2 - 34, WindHeight - (int)(StatusBarHeight / 1.1), Timestep);
 
-	PrintMessageG(g);
-	PrintMessageV(v);
-	PrintMessageW(w);
-}
-////print msg 2 functions
-void GUI::PrintMessageG(string msg) const	//Prints a message on status bar
-{
-	//ClearStatusBar();	//First clear the status bar
-	//we dont clear status bar so the upper msg doesn't disappear
+	pWind->SetPen(DrawingColors[0]); // To Draw the Noraml Status
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.325), Normal);
 
-	pWind->SetPen(DrawingColors[1]);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.65), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
-}
-////print msg 3 functions
-void GUI::PrintMessageV(string msg) const	//Prints a message on status bar
-{
-	//ClearStatusBar();	//First clear the status bar
-	//we dont clear status bar so the upper msg doesn't disappear
+	pWind->SetPen(DrawingColors[1]); // To Draw the Vegan Status
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.65), Vegan);
 
-	pWind->SetPen(DrawingColors[2]);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.2), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
-}
-////print msg 4 functions
-void GUI::PrintMessageW(string msg) const	//Prints a message on status bar
-{
-	//ClearStatusBar();	//First clear the status bar
-	//we dont clear status bar so the upper msg doesn't disappear
+	pWind->SetPen(DrawingColors[2]); // To Draw the VIP Status
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.2), VIP);
 
-	pWind->SetPen(BLUE);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 3.6), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
-	pWind->SetPen(CYAN , 3);
+	pWind->SetPen(DrawingColors[3]); // To Draw the Urgent Status
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), Urgent);
+
+	// To Draw the Lines in the Status Bar
+	pWind->SetPen(CYAN, 3);
 	pWind->DrawLine(210, 504, 210, 602);
 	pWind->DrawLine(400, 504, 400, 602);
 	pWind->DrawLine(4, 603, 1196, 603);
 	pWind->DrawLine(710, 603, 760, 650);
 	pWind->DrawLine(490, 603, 440, 650);
+
 }
-void GUI::PrintMessageNoRemove(string msg) const
+
+void GUI::PrintMessageN(string& Normal) const
+{
+	pWind->SetPen(DrawingColors[0]);
+	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(600, WindHeight - (int)(StatusBarHeight / 1.325), Normal);
+}
+
+void GUI::PrintMessageG(string& Vegan) const
+{
+	pWind->SetPen(DrawingColors[1]);
+	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(600, WindHeight - (int)(StatusBarHeight / 1.65), Vegan);
+}
+
+void GUI::PrintMessageV(string& VIP) const
+{
+	pWind->SetPen(DrawingColors[2]);
+	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(600, WindHeight - (int)(StatusBarHeight / 2.2), VIP);
+}
+
+void GUI::PrintMessageInjury(string& Injuered) const
+{
+	pWind->SetPen(RED);
+	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(WindWidth - 170, WindHeight - (int)(StatusBarHeight / 1.1), Injuered);
+}
+
+void GUI::PrintMessageNoRemove(string& mode, string& served) const
 {
 	pWind->SetPen(VIOLET);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 3.6), msg); // You may need to change these coordinates later 
+
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 3.6), mode);
+	pWind->DrawString(WindWidth / 2 - 100, WindHeight - (int)(StatusBarHeight / 3.6), served);
+	pWind->DrawString(WindWidth - 300, WindHeight - (int)(StatusBarHeight / 3.6), "WELCOME TO OUR RESTURANT");
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void GUI::DrawString(const int iX, const int iY, const string Text)
@@ -140,7 +147,7 @@ void GUI::ClearStatusBar() const
 {
 	pWind->SetPen(BLUE, 3);
 	pWind->SetBrush(WHITE);
-	pWind->DrawRectangle(1, WindHeight - StatusBarHeight+1, WindWidth, WindHeight);
+	pWind->DrawRectangle(1, WindHeight - StatusBarHeight + 1, WindWidth, WindHeight);
 }
 ///////////////////////////////////////////////////////////////////////////////////
 void GUI::ClearDrawingArea() const
@@ -162,8 +169,8 @@ void GUI::DrawRestArea() const
 
 	// 2- Drawing the 2 brown crossed lines (for making 4 regions)
 	pWind->SetPen(BLUE, 3);
-	pWind->DrawLine(2, YHalfDrawingArea, WindWidth-2, YHalfDrawingArea);
-	pWind->DrawLine(WindWidth / 2, MenuBarHeight, WindWidth / 2, WindHeight - StatusBarHeight-2);
+	pWind->DrawLine(2, YHalfDrawingArea, WindWidth - 2, YHalfDrawingArea);
+	pWind->DrawLine(WindWidth / 2, MenuBarHeight, WindWidth / 2, WindHeight - StatusBarHeight - 2);
 
 	// 3- Drawing the 2 white crossed lines (inside the Rest)
 	pWind->SetPen(WHITE);
@@ -226,20 +233,20 @@ void GUI::DrawSingleItem(const DrawingItem* pDitem, int RegionCount) const      
 	case COOK_REG:
 		refX = (WindWidth / 2 + RestWidth / 2);
 		refY = YHalfDrawingArea - OrderHeight; //
-		x = refX + (DrawDistance - 1)*OrderWidth + DrawDistance; //(Distance)
+		x = refX + (DrawDistance - 1) * OrderWidth + DrawDistance; //(Distance)
 		y = refY - YPos * OrderHeight - YPos; // YPos
 		break;
 	case SRV_REG:
 		refX = (WindWidth / 2 + RestWidth / 2);
 		refY = YHalfDrawingArea + OrderHeight; //
-		x = refX + (DrawDistance - 1)*OrderWidth + DrawDistance; //(Distance)
-		y = refY + (YPos - 1)*OrderHeight + YPos; // YPos
+		x = refX + (DrawDistance - 1) * OrderWidth + DrawDistance; //(Distance)
+		y = refY + (YPos - 1) * OrderHeight + YPos; // YPos
 		break;
 	case DONE_REG:
 		refX = (WindWidth / 2 - RestWidth / 2);
 		refY = YHalfDrawingArea + OrderHeight; //
 		x = refX - DrawDistance * OrderWidth - DrawDistance; //(Distance)
-		y = refY + (YPos - 1)*OrderHeight + YPos; // YPos
+		y = refY + (YPos - 1) * OrderHeight + YPos; // YPos
 		break;
 	default:
 		break;
@@ -266,7 +273,6 @@ void GUI::DrawAllItems()
 		pDitem = DrawingList[i];
 		RegionsCounts[pDitem->region]++;
 		DrawSingleItem(DrawingList[i], RegionsCounts[pDitem->region]);
-
 	}
 
 }
@@ -284,7 +290,7 @@ void GUI::UpdateInterface()
 void GUI::AddToDrawingList(Order* pOrd)
 {
 
-	DrawingItem *pDitem = new DrawingItem;
+	DrawingItem* pDitem = new DrawingItem;
 	pDitem->ID = pOrd->GetID();
 	pDitem->clr = DrawingColors[pOrd->GetType()];
 	ORD_STATUS order_status = pOrd->getStatus();
@@ -312,7 +318,7 @@ void GUI::AddToDrawingList(Order* pOrd)
 void GUI::AddToDrawingList(Cook* pC)
 {
 
-	DrawingItem *pDitem = new DrawingItem;
+	DrawingItem* pDitem = new DrawingItem;
 	pDitem->ID = pC->GetID();
 	pDitem->clr = DrawingColors[pC->GetType()];
 	pDitem->region = COOK_REG;
@@ -333,7 +339,7 @@ void GUI::AddToDrawingList(Linked_List<Cook> L1, Linked_List<Cook> L2, Linked_Li
 	Queue<Cook> q1;
 	Queue<Cook> q2;
 
-	while (ptr1&&ptr2)
+	while (ptr1 && ptr2)
 	{
 		if (!ptr1->getItem().IsFree())
 		{
@@ -430,14 +436,15 @@ void GUI::AddToDrawingList(Linked_List<Order> LL) // Adds all the Ordes in the l
 {
 	Node<Order>* ptr = LL.GetHead();
 	int count = LL.GetCount();
-	Order** ord = new Order *[100];
-	for (int i = 1; i <= count; i++)
+	Order** ord = new Order * [count];
+	for (int i = 0; i < count; i++)
 	{
 		ord[i] = &ptr->getItem();
 		ptr = ptr->getNext();
 	}
-	for (int i = count; i >= 1; i--)
+	for (int i = count - 1; i >= 0; i--)
 		AddToDrawingList(ord[i]);
+	delete[] ord;
 }
 
 void GUI::AddToDrawingList(Queue<Order> LL)
@@ -459,7 +466,7 @@ void GUI::AddToDrawingList(Priority_Queue<Order> LL, Queue<Order> L2)
 	Node<Order>* ptr = LL.Get_Head();
 	Node<Order>* p = L2.GetHead();
 	Order ord;
-	while (ptr&&p)
+	while (ptr && p)
 	{
 		if (ptr->getItem().Get_Arrival_Time() <= p->getItem().Get_Arrival_Time())
 		{

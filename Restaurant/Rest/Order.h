@@ -18,6 +18,7 @@ protected:
 	int ArrTime, ServTime, FinishTime, WaitTime;	//arrival, service start, finish , and waiting times
 	double Priority_Value;
 	int TimerAutoPromotion;
+	int TimerVipPromotion;
 	bool Vip_AutoPromotion;
 	bool AutoPromoted;
 
@@ -66,7 +67,7 @@ public:
 		if (type == TYPE_VIP)
 			Priority_Value = 100000000 - 8 * t + m * 7 - s * 4.7;
 		else if (type == TYPE_URG)
-			Priority_Value = 1.79769e+308;
+			Priority_Value = 1.79769e+308; // MAX number can be assign to double
 	}
 	void Set_Service_Time(int time) { ServTime = time; }
 	void Set_Waiting_Time(int time) { WaitTime = time; }

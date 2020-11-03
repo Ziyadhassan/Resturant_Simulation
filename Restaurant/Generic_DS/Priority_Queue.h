@@ -168,6 +168,8 @@ Node<Order>* Priority_Queue<Order>::PoP()
 		Head = Head->getNext();
 		Count--;
 		ptr->setNext(nullptr);
+		if (Count == 0) // if there was only 1 item in the list
+			Rear = nullptr;
 		return ptr;
 	}
 	return NULL;
